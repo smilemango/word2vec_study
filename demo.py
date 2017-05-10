@@ -47,7 +47,8 @@ if not os.path.exists("trained/thrones2vec.w2v"):
 
     #print books
     print("Found books:")
-    book_filenames
+    book_filenames = [book_filenames[0]]
+    print(book_filenames)
 
     #step 1 process data
 
@@ -150,15 +151,16 @@ tsne = sklearn.manifold.TSNE(n_components=2, random_state=0)
 all_word_vectors_matrix = thrones2vec.wv.syn0
 
 #train t sne
+print("#train t sne")
 all_word_vectors_matrix_2d = tsne.fit_transform(all_word_vectors_matrix)
 
 #plot point in 2d space
+print("#plot point in 2d space")
 points = pd.DataFrame(
     [
         (word, coords[0], coords[1])
         for word, coords in [
-            (word, all_word_vectors_matrix_2d[thrones2vec.vocab[word].index])
-            for word in thrones2vec.vocab
+            (word, all_word_vectors_matrix_2d[thrones2vec.wv.vocab[word].index]) for word in thrones2vec.wv.vocab
         ]
     ],
     columns=["word", "x", "y"]
