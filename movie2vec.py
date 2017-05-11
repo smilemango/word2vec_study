@@ -23,7 +23,20 @@ conn = sqlite3.connect('movies.sqlite')
 c = conn.cursor()
 
 # SQL 쿼리 실행
-c.execute("select * from comments order by comment_id limit 10 ")
+c.execute("""
+select movie_id, comment_id, rate, replace(comment, ',',' ')
+from comments
+where
+     replace(comment, ',',' ') like '%전지현 %'
+and  replace(comment, ',',' ') like '%하정우 %'
+and  replace(comment, ',',' ') like '%이정재 %'
+union all
+select * from comments
+where
+    comment like '%전지현 %'
+and comment like '%하정우 %'
+and comment like '%조진웅 %'
+""")
 
 # 데이타 Fetch
 rows = c.fetchall()
@@ -36,8 +49,10 @@ for a_row in rows:
     sentences.append(words)
 
 print("SENTENSE SIZE : %d " %  len(sentences) )
+sentences = sentences * 5
+print("SENTENSE SIZE : %d " %  len(sentences) )
 
-model = gensim.models.Word2Vec(window=10, min_count=1, size=3)
+model = gensim.models.Word2Vec(window=10, min_count=1, size=2)
 model.build_vocab(sentences)
 print("Word2Vec vocabulary length:", len(model.wv.vocab))
 
@@ -48,8 +63,8 @@ tsne = sklearn.manifold.TSNE(n_components=2, random_state=0)
 
 all_word_vectors_matrix = model.wv.syn0
 pp.pprint(model.wv.syn0[0])
-
 all_word_vectors_matrix_2d = tsne.fit_transform(all_word_vectors_matrix)
+
 points = pd.DataFrame(
     [
         (word, coords[0], coords[1])
@@ -62,26 +77,27 @@ points = pd.DataFrame(
 )
 
 
-pp.pprint( points.head(10))
-
+pp.pprint(points.head(10))
 sns.set_context("poster")
-
-points.plot.scatter("x", "y", s=10, figsize=(20, 12))
-
-
-def plot_region(x_bounds, y_bounds):
-    slice = points[
-        (x_bounds[0] <= points.x) &
-        (points.x <= x_bounds[1]) &
-        (y_bounds[0] <= points.y) &
-        (points.y <= y_bounds[1])
-        ]
-
-    ax = slice.plot.scatter("x", "y", s=35, figsize=(10, 8))
-    for i, point in slice.iterrows():
-        ax.text(point.x + 0.005, point.y + 0.005, point.word, fontsize=11)
+pp.pprint(model.most_similar('하정우'))
 
 
-plot_region(x_bounds=(3.0, 4.5), y_bounds=(-0.5, 0.0))
+from sklearn.manifold import TSNE
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import font_manager, rc
+import matplotlib.pyplot as plt
+import pylab
 
-plot_region(x_bounds=(0, 1), y_bounds=(4, 4.5))
+font_name = font_manager.FontProperties(fname="c:/Windows/Fonts/malgun.ttf").get_name()
+rc('font', family=font_name)
+
+
+ax = points.plot.scatter("x", "y", s=10, figsize=(20, 12))
+for i, point in points.iterrows():
+    ax.text(point.x + 0.005, point.y + 0.005, point.word, fontsize=11)
+
+for value in points.values:
+    if value[0] =='하정우':
+        print(value)
+
+plt.show()
