@@ -45,13 +45,33 @@ sentences = []
 
 idx = 0
 for a_row in rows:
-    words = a_row[3].split()
+    words = a_row[3]
     sentences.append(words)
 
 print("SENTENSE SIZE : %d " %  len(sentences) )
 sentences = sentences * 20
 print("SENTENSE SIZE : %d " %  len(sentences) )
 
+
+
+# Tokenize
+from konlpy.tag import Twitter
+
+t = Twitter()
+def pos( d ):
+    ret = []
+    for p in t.pos(d):
+        if p[1] == 'Josa' or p[1] =='Punctuation' or p[1] == 'Suffix' or p[1] == 'Eomi':
+            continue
+        else:
+            ret.append( '/'.join( p ) )
+    return ret
+
+text_ko = [pos(doc) for doc in sentences]
+
+print(text_ko)
+
+del sentences
 #ONCE we have vectors
 #step 3 - build model
 #3 main tasks that vectors help with
@@ -93,10 +113,10 @@ model = gensim.models.Word2Vec(
 )
 
 
-model.build_vocab(sentences)
+model.build_vocab(text_ko)
 print("Word2Vec vocabulary length:", len(model.wv.vocab))
 
-model.train(sentences,total_examples=model.corpus_count, epochs=model.iter)
+model.train(text_ko,total_examples=model.corpus_count, epochs=model.iter)
 
 #my video - how to visualize a dataset easily
 tsne = sklearn.manifold.TSNE(n_components=2, random_state=0)
@@ -134,13 +154,13 @@ ax = points.plot.scatter("x", "y", s=10, figsize=(20, 12))
 for i, point in points.iterrows():
     ax.text(point.x + 0.001, point.y + 0, point.word, fontsize=11)
 
-print(model.most_similar('하정우'))
-print(model.most_similar('이정재'))
-print(model.most_similar('전지현'))
+print(model.most_similar(pos('하정우')[0]))
+print(model.most_similar(pos('이정재')[0]))
+print(model.most_similar(pos('전지현')[0]))
 
 
 for value in points.values:
-    if value[0] =='하정우':
+    if value[0] ==pos('하정우')[0]:
         print(value)
 
 
