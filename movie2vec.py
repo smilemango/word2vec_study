@@ -52,7 +52,7 @@ print("SENTENSE SIZE : %d " %  len(sentences) )
 sentences = sentences * 5
 print("SENTENSE SIZE : %d " %  len(sentences) )
 
-model = gensim.models.Word2Vec(window=10, min_count=1, size=2)
+model = gensim.models.Word2Vec(window=10, min_count=11, size=2)
 model.build_vocab(sentences)
 print("Word2Vec vocabulary length:", len(model.wv.vocab))
 
@@ -94,7 +94,7 @@ rc('font', family=font_name)
 
 ax = points.plot.scatter("x", "y", s=10, figsize=(20, 12))
 for i, point in points.iterrows():
-    ax.text(point.x + 0.005, point.y + 0.005, point.word, fontsize=11)
+    ax.text(point.x + 0.001, point.y + 0, point.word, fontsize=11)
 
 for value in points.values:
     if value[0] =='하정우':
